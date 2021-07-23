@@ -37,9 +37,9 @@ check_format_release_branch() {
   branch="$1"
   match_count=$(echo ${branch} | grep -o -P "${regexp_release_branch}" | wc -l)
   if [[ ${match_count} != 1 ]]; then
-    >&2 echo "ERROR: release branch is not formatted"; return 0
+    >&2 echo "ERROR: release branch is not formatted"; return 1
   fi
-  return 1
+  return 0
 }
 
 
