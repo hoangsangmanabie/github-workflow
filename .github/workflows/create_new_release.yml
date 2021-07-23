@@ -16,6 +16,7 @@ jobs:
         env:
           BRANCH: ${{ github.event.inputs.release_branch_name }}
         run: |
+          set -e
           . .githooks/common.bash
           $(check_format_release_branch "${BRANCH}")
       - name: Prepare new release branch
