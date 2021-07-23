@@ -35,9 +35,9 @@ jobs:
         env:
           BRANCH: ${{ github.event.inputs.release_branch_name }}
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           EVENT_TYPE: REQUEST_CHANGES
-          BRANCHES: develop
+          BRANCHES: demo_test/*
           AUTHOR: 'dependabot-preview[bot], dependabot[bot], golfzaptw'
           MESSAGE: Nice approve from github bot.
 
