@@ -19,13 +19,13 @@ jobs:
           set -e
           . .githooks/common.bash
           $(check_format_release_branch "${BRANCH}")
-      - name: Prepare new release branch
-        id: prepare_new_release_branch
-        run: |
-          echo "::set-output name=NEW_BRANCH::demo_test/$(date --date="next Friday" '+%Y%m%d')"
+      # - name: Prepare new release branch
+      #   id: prepare_new_release_branch
+      #   run: |
+      #     echo "::set-output name=NEW_BRANCH::demo_test/$(date --date="next Friday" '+%Y%m%d')"
       - name: Create new release branch
         uses: peterjgrainger/action-create-branch@v2.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          branch: ${{ steps.prepare_new_release_branch.outputs.NEW_BRANCH }}
+          branch: ${{ demo_test/$(date --date="next Friday" '+%Y%m%d') }}
