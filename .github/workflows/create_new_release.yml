@@ -37,7 +37,7 @@ jobs:
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
           EVENT_TYPE: REQUEST_CHANGES
-          BRANCHES: demo_test/*
+          BRANCHES: develop
           AUTHOR: 'dependabot-preview[bot], dependabot[bot], golfzaptw'
           MESSAGE: Nice approve from github bot.
 
