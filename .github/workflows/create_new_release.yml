@@ -22,7 +22,7 @@ jobs:
       - name: Prepare new release branch
         id: prepare_new_release_branch
         run: |
-          echo "::set-output name=NEW_BRANCH::'demo_test/'$(date --date="next Friday" '+%Y%m%d')"
+          echo "::set-output name=NEW_BRANCH::demo_test/$(date --date="next Friday" '+%Y%m%d')"
       - name: Create new release branch
         uses: peterjgrainger/action-create-branch@v2.0.1
         env:
