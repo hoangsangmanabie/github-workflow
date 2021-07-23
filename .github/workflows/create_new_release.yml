@@ -1,0 +1,31 @@
+on:
+  workflow_dispatch:
+    inputs:
+      release_branch_name:
+        description: "branch will be frozen"
+        required: true
+jobs:
+  create-new-release-branch:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+        with:
+          ref: '${{ github.event.inputs.tag }}'
+      - name: Check format old release branch
+        env:
+          BRANCH: ${{ github.event.inputs.release_branch_name }}
+        shell: bash
+        run: |
+          . .githooks/common.bash
+          $(check_format_release_branch "${BRANCH}")
+      - name: Prepare new release branch
+        id: prepare_new_release_branch
+        run: |
+          echo "::set-output name=NEW_BRANCH::'demo_test/'$(date --date="next Friday" '+%Y%m%d')"
+      - name: Create new release branch
+        uses: peterjgrainger/action-create-branch@v2.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          branch: ${{ steps.prepare_new_release_branch.outputs.NEW_BRANCH }}
