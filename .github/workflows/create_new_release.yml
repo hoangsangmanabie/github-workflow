@@ -15,7 +15,6 @@ jobs:
       - name: Check format old release branch
         env:
           BRANCH: ${{ github.event.inputs.release_branch_name }}
-        shell: bash
         run: |
           . .githooks/common.bash
           $(check_format_release_branch "${BRANCH}")
