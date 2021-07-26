@@ -40,7 +40,7 @@ jobs:
             while (result.data.length != 0) {
               dataSize = result.data.length
               for (let i=0; i < dataSize; i++) {
-                listPRNumber.add(result.data[i].number)
+                listPRNumber.push(result.data[i].number)
               }
               if (dataSize < limit) {
                 break
@@ -62,7 +62,7 @@ jobs:
             let url = ""
             for (let i=0;i<totalPR;i++) {
               url = `POST /repos/${{ github.repository }}/pulls/${ listPRNumber[i] }/reviews`
-              requests.add(github.request(url, {
+              requests.push(github.request(url, {
                 event: REQUEST_CHANGES,
                 body: `Your current release branch is outdated. You must update your PR's base branch to the new release branch ${{ github.event.inputs.release_branch_name }}`
               }))
