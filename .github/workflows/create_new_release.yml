@@ -48,7 +48,7 @@ jobs:
               url = `/repos/${{ github.repository }}/pulls?per_page=${limit}&page=${page}`
               result = await github.request(url)
             }
-
+            console.log(listPRNumber)
             return listPRNumber
       - name: Create a request change for old pull requests
         uses: actions/github-script@v4
