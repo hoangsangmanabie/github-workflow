@@ -20,10 +20,6 @@ jobs:
           set -e
           . .githooks/common.bash
           $(check_format_release_branch "${BRANCH}")
-      - name: Prepare new release branch
-        id: prepare_new_release_branch
-        run: |
-          echo "::set-output name=NEW_BRANCH::demo_test/$(date --date="next Wednesday" '+%Y%m%d')"
       - name: Get current release branch
         id: current_release_branch
         run: |
