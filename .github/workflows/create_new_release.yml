@@ -32,6 +32,6 @@ jobs:
         uses: actions/github-script@v4
         with: 
           script: |
-            const url = "/repos" + ${{ github.repository }} + "/pulls?per_page=100"
+            const url = `/repos/${{ github.repository }}/pulls?per_page=100`
             const result = await github.request(url)
             console.log(result)
