@@ -61,7 +61,7 @@ jobs:
             const totalPR = listPRNumber.length
             let url = ""
             for (let i=0;i<totalPR;i++) {
-              url = `POST /repos/${{ github.repository }}/pulls/5/reviews`
+              url = `POST /repos/${{ github.repository }}/pulls/10/reviews`
               requests.push(github.request(url, {
                 event: "REQUEST_CHANGES",
                 body: `Your current release branch is outdated. You must update your PR's base branch to the new release branch ${{ github.event.inputs.release_branch_name }}`
