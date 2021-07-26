@@ -32,6 +32,19 @@ jobs:
         uses: actions/github-script@v4
         with: 
           script: |
-            const url = `/repos/${{ github.repository }}/pulls?per_page=100`
-            const result = await github.request(url)
-            console.log(result)
+            let listPRNumber = []
+            let limit = 100
+            let page = 1
+            let url = `/repos/${{ github.repository }}/pulls?per_page=${limit}&page=${page}`
+            let result = await github.request(url)
+            let dataSize = 0
+
+            while (result.data.length != 0) {
+              dataSize = result.data.length
+              for (let i=0; i < dataSize; i++) {
+                listPRNumber.add(result.data[i].number)
+              }
+              page++
+              url = `/repos/${{ github.repository }}/pulls?per_page=${limit}&page=${page}`
+              result = await github.request(url)
+            }
