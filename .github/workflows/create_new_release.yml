@@ -63,7 +63,7 @@ jobs:
             let requests = []
             const totalPR = listPRNumber.length
             let url = ""
-            for (let i=0;i<n;i++) {
+            for (let i=0;i<totalPR;i++) {
               url = `POST /repos/${{ github.repository }}/pulls/${listPRNumber[i]}/reviews`
               requests.add(github.request(url, {
                 event: REQUEST_CHANGES,
