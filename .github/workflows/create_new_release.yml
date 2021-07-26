@@ -34,9 +34,10 @@ jobs:
         uses: actions/github-script@v4
         id: get_pull_request_numbers
         with: 
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             let listPRNumber = []
-            let limit = 1
+            let limit = 100
             let page = 1
             let url = `/repos/${{ github.repository }}/pulls?per_page=${ limit }&page=${ page }&base=${{ steps.current_release_branch.outputs.BRANCH_NAME }}`
             let result = await github.request(url)
