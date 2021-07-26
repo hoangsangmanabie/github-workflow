@@ -32,7 +32,7 @@ jobs:
             let listPRNumber = []
             let limit = 100
             let page = 1
-            let url = `/repos/${{ github.repository }}/pulls?per_page=${limit}&page=${page}`
+            let url = `/repos/${{ github.repository }}/pulls?per_page=${limit}&page=${page}&base=${{ github.steps.current_release_branch.outputs.BRANCH_NAME }}`
             let result = await github.request(url)
             let dataSize = 0
 
