@@ -2,7 +2,7 @@ on:
   workflow_dispatch:
     inputs:
       release_branch_name:
-        description: "branch will be frozen"
+        description: "enter new release branch"
         required: true
 jobs:
   create-new-release-branch:
@@ -13,7 +13,7 @@ jobs:
         with:
           ref: '${{ github.event.inputs.tag }}'
           fetch-depth: 0
-      - name: Check format old release branch
+      - name: Check format of new release branch
         env:
           BRANCH: ${{ github.event.inputs.release_branch_name }}
         run: |
@@ -23,21 +23,15 @@ jobs:
       - name: Prepare new release branch
         id: prepare_new_release_branch
         run: |
-          echo "::set-output name=NEW_BRANCH::demo_test/$(date --date="next Friday" '+%Y%m%d')"
-      - name: Create new release branch
-        uses: peterjgrainger/action-create-branch@v2.0.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          branch: ${{ steps.prepare_new_release_branch.outputs.NEW_BRANCH }}
-      - name: Request change in some PR
-        uses: golfzaptw/action-auto-reviews-from-branches@master
-        env:
-          BRANCH: ${{ github.event.inputs.release_branch_name }}
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          EVENT_TYPE: REQUEST_CHANGES
-          BRANCHES: demo_test/*
-          AUTHOR: 'dependabot-preview[bot], dependabot[bot], golfzaptw'
-          MESSAGE: Nice approve from github bot.
-
+          echo "::set-output name=NEW_BRANCH::demo_test/$(date --date="next Wednesday" '+%Y%m%d')"
+      - name: Get current release branch
+        id: current_release_branch
+        run: |
+          echo "::set-output name=BRANCH_NAME::release/$(date --date="this Wednesday" '+%Y%m%d')"
+      - name: Get all PR of old release branch
+        uses: actions/github-script@v4
+        with: 
+          script: |
+            const url = "/repos" + ${{ github.repository }} + "/pulls?per_page=100"
+            const result = await github.request(url)
+            console.log(result)
