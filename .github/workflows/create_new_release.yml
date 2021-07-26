@@ -30,6 +30,7 @@ jobs:
           echo "::set-output name=BRANCH_NAME::release/$(date --date="this Wednesday" '+%Y%m%d')"
       - name: Get all PR of old release branch
         uses: actions/github-script@v4
+        id: get_pull_request_numbers
         with: 
           script: |
             let listPRNumber = []
@@ -44,7 +45,32 @@ jobs:
               for (let i=0; i < dataSize; i++) {
                 listPRNumber.add(result.data[i].number)
               }
+              if (dataSize < limit) {
+                break
+              }
               page++
               url = `/repos/${{ github.repository }}/pulls?per_page=${limit}&page=${page}`
               result = await github.request(url)
             }
+
+            return listPRNumber
+      - name: Create a request change for old pull requests
+        uses: actions/github-script@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            let listPRNumber = ${{ steps.get_pull_request_numbers.outputs.result }}
+            let requests = []
+            const totalPR = listPRNumber.length
+            let url = ""
+            for (let i=0;i<n;i++) {
+              url = `POST /repos/${{ github.repository }}/pulls/${listPRNumber[i]}/reviews`
+              requests.add(github.request(url, {
+                event: REQUEST_CHANGES,
+                body: `Your current release branch is outdated. You must update your PR's base branch to the new release branch ${{ github.event.inputs.release_branch_name }}`
+              }))
+            }
+
+            let responses = await Promise.all(requests)
+            console.log(responses)
+        
