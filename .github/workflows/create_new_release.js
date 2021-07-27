@@ -4,7 +4,7 @@ const currentReleaseBranch = process.env.CURRENT_RELEASE_BRANCH
 const arg = process.argv.splice(2);
 
 
-function getListPRNumber() {
+async function getListPRNumber() {
     let listPRNumber = []
 
     let limit = 100
