@@ -1,7 +1,7 @@
 const repo = process.env.REPO;
 const currentReleaseBranch = process.env.CURRENT_RELEASE_BRANCH
 
-module.exports.getListPRNumber = async function() {
+async function getListPRNumber() {
     let listPRNumber = []
 
     let limit = 100
@@ -30,4 +30,8 @@ module.exports.getListPRNumber = async function() {
     }
 
     return listPRNumber
+}
+
+module.exports = {
+    getListPRNumber
 }
