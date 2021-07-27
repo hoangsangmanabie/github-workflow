@@ -1,5 +1,6 @@
 const repo = process.env.REPO;
 const currentReleaseBranch = process.env.CURRENT_RELEASE_BRANCH
+const newReleaseBranch = process.env.NEW_RELEASE_BRANCH
 
 async function getListPRNumber(github) {
     let listPRNumber = []
@@ -32,6 +33,21 @@ async function getListPRNumber(github) {
     return listPRNumber
 }
 
+async function requestChange(github, listPRNumber) {
+    let requests = []
+    const totalPR = listPRNumber.length
+    let url = ""
+    for (let i=0;i<totalPR;i++) {
+      url = `POST /repos/${ repo }/pulls/${ listPRNumber[i] }/reviews`
+      requests.push(github.request(url, {
+        event: "REQUEST_CHANGES",
+        body: `Your current release branch is outdated. You must update your PR's base branch to the new release branch ${ newReleaseBranch }`
+      }))
+    }
+    await Promise.all(requests)
+}
+
 module.exports = {
-    getListPRNumber
+    getListPRNumber,
+    requestChange
 }
