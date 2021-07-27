@@ -40,31 +40,13 @@ jobs:
       - name: Get all PR of old release branch
         uses: actions/github-script@v4
         id: get_pull_request_numbers
+        env: 
+          REPO: ${{ github.repository }}
+          CURRENT_RELEASE_BRANCH: ${{ steps.current_release_branch.outputs.BRANCH_NAME }}
         with: 
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            let listPRNumber = []
-            let limit = 100
-            let page = 1
-            let url = `/repos/${{ github.repository }}/pulls?per_page=${ limit }&page=${ page }&base=${{ steps.current_release_branch.outputs.BRANCH_NAME }}`
-            let result = await github.request(url)
-            console.log(result) // for the reviewer, they can see what is in response, I wil remove this line before merge
-            let dataSize = 0
-
-            while (result.data.length != 0) {
-              dataSize = result.data.length
-              for (let i=0; i < dataSize; i++) {
-                listPRNumber.push(result.data[i].number)
-              }
-              if (dataSize < limit) {
-                break
-              }
-              page++
-              url = `/repos/${{ github.repository }}/pulls?per_page=${ limit }&page=${ page }&base=${{ steps.current_release_branch.outputs.BRANCH_NAME }}`
-              result = await github.request(url)
-              console.log(result) // for the reviewer, they can see what is in response, I wil remove this line before merge
-            }
-            return listPRNumber
+          run: |
+            node ${{github.workspace}}/.github/create_new_release.js getListPRNumber
       - name: Create a request change for old pull requests
         uses: actions/github-script@v4
         with:
