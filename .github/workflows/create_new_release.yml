@@ -45,7 +45,7 @@ jobs:
           CURRENT_RELEASE_BRANCH: ${{ steps.current_release_branch.outputs.BRANCH_NAME }}
         with: 
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          run: |
+          script: |
             const getListPRNumber = require(`${{github.workspace}}/.github/workflows/create_new_release.js`)
             return getListPRNumber()
       - name: Create a request change for old pull requests
