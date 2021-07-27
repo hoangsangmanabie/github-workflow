@@ -20,6 +20,7 @@ jobs:
           script: |
             const url = `/repos/${{ github.repository }}/pulls?base=develop&head=${{ steps.current_release_branch.outputs.BRANCH_NAME }}`
             const result = await github.request(url)
+            console.log(result)
             if (result.data.length != 0) {
               return result.data[0].number
             }
