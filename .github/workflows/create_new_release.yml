@@ -56,7 +56,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            let listPRNumber = ${{ steps.get_pull_request_numbers.outputs.result }}
+            const listPRNumber = ${{ steps.get_pull_request_numbers.outputs.result }}
             const { requestChange } = require(`${{github.workspace}}/.github/workflows/create_new_release.js`)
             return requestChange(github, listPRNumber)
         
