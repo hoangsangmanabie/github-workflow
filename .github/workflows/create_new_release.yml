@@ -46,7 +46,7 @@ jobs:
         with: 
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const getListPRNumber = require(`${{github.workspace}}/.github/workflows/create_new_release.js`)
+            const { getListPRNumber } = require(`${{github.workspace}}/.github/workflows/create_new_release.js`)
             return getListPRNumber()
       - name: Create a request change for old pull requests
         uses: actions/github-script@v4
