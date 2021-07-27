@@ -30,25 +30,26 @@ jobs:
         with: 
           script: |
             let listPRNumber = []
-            let limit = 100
+            let limit = 1
             let page = 1
-            let url = `/repos/${{ github.repository }}/pulls?per_page=${limit}&page=${page}&base=${{ github.steps.current_release_branch.outputs.BRANCH_NAME }}`
+            let url = `/repos/${{ github.repository }}/pulls?per_page=${ limit }&page=${ page }&base=${{ steps.current_release_branch.outputs.BRANCH_NAME }}`
             let result = await github.request(url)
+            console.log(result) // for the reviewer, they can see what is in response, I wil remove this line before merge
             let dataSize = 0
 
             while (result.data.length != 0) {
               dataSize = result.data.length
               for (let i=0; i < dataSize; i++) {
-                listPRNumber.add(result.data[i].number)
+                listPRNumber.push(result.data[i].number)
               }
               if (dataSize < limit) {
                 break
               }
               page++
-              url = `/repos/${{ github.repository }}/pulls?per_page=${limit}&page=${page}`
+              url = `/repos/${{ github.repository }}/pulls?per_page=${ limit }&page=${ page }&base=${{ steps.current_release_branch.outputs.BRANCH_NAME }}`
               result = await github.request(url)
+              console.log(result) // for the reviewer, they can see what is in response, I wil remove this line before merge
             }
-
             return listPRNumber
       - name: Create a request change for old pull requests
         uses: actions/github-script@v4
@@ -60,13 +61,13 @@ jobs:
             const totalPR = listPRNumber.length
             let url = ""
             for (let i=0;i<totalPR;i++) {
-              url = `POST /repos/${{ github.repository }}/pulls/${listPRNumber[i]}/reviews`
-              requests.add(github.request(url, {
-                event: REQUEST_CHANGES,
+              url = `POST /repos/${{ github.repository }}/pulls/${ listPRNumber[i] }/reviews`
+              requests.push(github.request(url, {
+                event: "REQUEST_CHANGES",
                 body: `Your current release branch is outdated. You must update your PR's base branch to the new release branch ${{ github.event.inputs.release_branch_name }}`
               }))
             }
 
             let responses = await Promise.all(requests)
-            console.log(responses)
+            console.log(responses) // for the reviewer, they can see what is in response, I wil remove this line before merge
         
