@@ -1,10 +1,7 @@
 const repo = process.env.REPO;
 const currentReleaseBranch = process.env.CURRENT_RELEASE_BRANCH
 
-const arg = process.argv.splice(2);
-
-
-async function getListPRNumber() {
+export async function getListPRNumber() {
     let listPRNumber = []
 
     let limit = 100
@@ -33,11 +30,4 @@ async function getListPRNumber() {
     }
 
     return listPRNumber
-}
-
-switch(arg[0]){
-    case "getListPRNumber":
-        getListPRNumber()
-        break;
-    default:
 }
