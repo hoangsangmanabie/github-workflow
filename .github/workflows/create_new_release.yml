@@ -38,7 +38,6 @@ jobs:
         run: |
           echo "::set-output name=BRANCH_NAME::release/$(date --date="this Wednesday" '+%Y%m%d')"
       - name: Get all PR of old release branch
-        uses: actions/github-script@v4
         id: get_pull_request_numbers
         env: 
           REPO: ${{ github.repository }}
