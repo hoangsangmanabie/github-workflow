@@ -1,0 +1,36 @@
+on:
+  workflow_dispatch:
+jobs:
+  create_change_log:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Get current release branch
+        id: current_release_branch
+        run: |
+          echo "::set-output name=BRANCH_NAME::release/$(date --date="this Wednesday" '+%Y%m%d')"
+      - name: Get pull request
+        uses: actions/github-script@v4
+        id: get_pull_request
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const url = `/repos/${{ github.repository }}/pulls?base=develop&head=${{ steps.current_release_branch.outputs.BRANCH_NAME }}`
+            const result = await github.request(url)
+            if (result.data.length != 0) {
+              return result.data[0].number
+            }
+            return 0
+      - name: Update current PR description
+        uses: actions/github-script@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const url = `PATCH /repos/${{ github.repository }}/pulls/${{ steps.get_pull_request.outputs.result }}`
+            const result = await github.request(url, {
+              body: "Some example body"
+            })
+            console.log(result)
