@@ -43,7 +43,7 @@ jobs:
           REPO: ${{ github.repository }}
           CURRENT_RELEASE_BRANCH: ${{ steps.current_release_branch.outputs.BRANCH_NAME }}
         run: |
-          node ${{github.workspace}}/.github/create_new_release.js getListPRNumber
+          node ${{github.workspace}}/.github/workflows/create_new_release.js getListPRNumber
       - name: Create a request change for old pull requests
         uses: actions/github-script@v4
         with:
