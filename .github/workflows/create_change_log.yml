@@ -28,7 +28,7 @@ jobs:
       - name: Get commit logs
         id: get_commit_logs
         run: |
-          git log develop...${{ steps.current_release_branch.outputs.BRANCH_NAME }}
+          git log origin/develop...origin/${{ steps.current_release_branch.outputs.BRANCH_NAME }}
       - name: Update current PR description
         uses: actions/github-script@v4
         with:
