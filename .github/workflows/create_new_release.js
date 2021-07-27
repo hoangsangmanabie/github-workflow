@@ -1,7 +1,7 @@
 const repo = process.env.REPO;
 const currentReleaseBranch = process.env.CURRENT_RELEASE_BRANCH
 
-async function getListPRNumber() {
+async function getListPRNumber(github) {
     let listPRNumber = []
 
     let limit = 100
