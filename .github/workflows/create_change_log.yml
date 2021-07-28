@@ -35,6 +35,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            console.log(`${{ steps.get_commit_logs.outputs.GIT_LOG }}`)
             const url = `PATCH /repos/${{ github.repository }}/pulls/${{ steps.get_pull_request.outputs.result }}`
             const result = await github.request(url, {
               body: `${{ steps.get_commit_logs.outputs.GIT_LOG }}`
