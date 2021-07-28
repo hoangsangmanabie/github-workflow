@@ -36,6 +36,6 @@ jobs:
           script: |
             const url = `PATCH /repos/${{ github.repository }}/pulls/${{ steps.get_pull_request.outputs.result }}`
             const result = await github.request(url, {
-              body: ${{ steps.get_commit_logs.outputs.GIT_LOG }}
+              body: `${{ steps.get_commit_logs.outputs.GIT_LOG }}`
             })
             console.log(result)
