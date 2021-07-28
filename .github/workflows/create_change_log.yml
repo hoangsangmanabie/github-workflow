@@ -28,8 +28,11 @@ jobs:
       - name: Get commit logs
         id: get_commit_logs
         run: |
-          git log origin/develop origin/${{ steps.current_release_branch.outputs.BRANCH_NAME }} ^origin/develop
-          echo "::set-output name=GIT_LOG::$(git log origin/develop origin/${{ steps.current_release_branch.outputs.BRANCH_NAME }} ^origin/develop)"
+          GIT_LOG_STRING = $(git log origin/develop origin/${{ steps.current_release_branch.outputs.BRANCH_NAME }} ^origin/develop)
+          GIT_LOG_STRING="${GIT_LOG_STRING//'%'/'%25'}"
+          GIT_LOG_STRING="${GIT_LOG_STRING//$'\n'/'%0A'}"
+          GIT_LOG_STRING="${GIT_LOG_STRING//$'\r'/'%0D'}"
+          echo "::set-output name=GIT_LOG::$GIT_LOG_STRING"
       - name: Update current PR description
         uses: actions/github-script@v4
         with:
