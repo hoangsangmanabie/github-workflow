@@ -33,7 +33,7 @@ jobs:
         run: |
           set -e
           git branch --all --list '*release/20*' | sort -r | head -n 1
-          echo "::set-output name=BRANCH_NAME::$(git branch --all --list '*release/20*' | sort -r | head -n 1)"
+          echo "::set-output name=BRANCH_NAME::$(git branch --list 'release/20*' | sort -r | head -n 1)"
 
       - name: Get all PR of old release branch
         uses: actions/github-script@v4
