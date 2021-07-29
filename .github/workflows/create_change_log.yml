@@ -20,7 +20,7 @@ jobs:
               THIS_WEDNESDAY=$(date --date="this Wednesday -7 days" '+%Y%m%d')
             fi
           fi
-          echo "::set-output name=BRANCH_NAME::release/$(date --date="this Wednesday" '+%Y%m%d')"
+          echo "::set-output name=BRANCH_NAME::release/$THIS_WEDNESDAY"
 
       - name: Get pull request
         uses: actions/github-script@v4
