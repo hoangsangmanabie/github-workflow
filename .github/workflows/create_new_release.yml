@@ -38,23 +38,15 @@ jobs:
       - name: Get current release branch
         id: current_release_branch
         run: |
-          THIS_WEDNESDAY=$(date --date="this Wednesday" '+%Y%m%d')
-          NEXT_WEDNESDAY=$(date --date="next Wednesday" '+%Y%m%d')
-          if [ $THIS_WEDNESDAY -eq  $NEXT_WEDNESDAY ]; then
-            THIS_SUNDAY=$(date --date="this Sunday" '+%Y%m%d')
-            if [ $THIS_WEDNESDAY -gt $THIS_SUNDAY ]; then
-              THIS_WEDNESDAY=$(date --date="this Wednesday -7 days" '+%Y%m%d')
-            fi
-          fi
-          echo "::set-output name=BRANCH_NAME::release/$THIS_WEDNESDAY"
+          echo "::set-output name=BRANCH_NAME::$(git branch --all --list '*release/20*' | sort -r | head -n 1)"
 
       - name: Get all PR of old release branch
         uses: actions/github-script@v4
         id: get_pull_request_numbers
-        env: 
+        env:
           REPO: ${{ github.repository }}
           CURRENT_RELEASE_BRANCH: ${{ steps.current_release_branch.outputs.BRANCH_NAME }}
-        with: 
+        with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const { getListPRNumber } = require(`${{github.workspace}}/.github/workflows/create_new_release.js`)
@@ -71,4 +63,3 @@ jobs:
             const listPRNumber = ${{ steps.get_pull_request_numbers.outputs.result }}
             const { requestChange } = require(`${{github.workspace}}/.github/workflows/create_new_release.js`)
             return requestChange(github, listPRNumber)
-        
