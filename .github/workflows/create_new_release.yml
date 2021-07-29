@@ -2,7 +2,7 @@ on:
   workflow_dispatch:
     inputs:
       release_branch_name:
-        description: "enter new release branch"
+        description: "enter new release branch (e.g. release/20211231)"
         required: true
 jobs:
   create-new-release-branch:
@@ -11,7 +11,6 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v2
         with:
-          ref: '${{ github.event.inputs.tag }}'
           fetch-depth: 0
 
       - name: Check format of new release branch
@@ -23,7 +22,7 @@ jobs:
             branch="$1"
             match_count=$(echo ${branch} | grep -o -P "${regexp_release_branch}" | wc -l)
             if [[ ${match_count} != 1 ]]; then
-              >&2 echo "ERROR: release branch is not formatted"; return 1
+              >&2 echo "ERROR: release branch is not properly formatted (got \"${branch}\", expected \"release\/yyyymmdd\""; return 1
             fi
             return 0
           }
@@ -60,7 +59,7 @@ jobs:
           script: |
             const { getListPRNumber } = require(`${{github.workspace}}/.github/workflows/create_new_release.js`)
             return getListPRNumber(github)
-            
+
       - name: Create a request change for old pull requests
         uses: actions/github-script@v4
         env:
