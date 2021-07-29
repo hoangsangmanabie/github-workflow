@@ -31,6 +31,7 @@ jobs:
       - name: Get current release branch
         id: current_release_branch
         run: |
+          git branch --all --list 'release/20*' | sort -r | head -n 1
           echo "::set-output name=BRANCH_NAME::$(git branch --all --list 'release/20*' | sort -r | head -n 1)"
 
       - name: Get all PR of old release branch
