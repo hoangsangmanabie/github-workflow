@@ -32,8 +32,8 @@ jobs:
         id: current_release_branch
         run: |
           set -e
-          git branch --all --list 'remote/origin/release/20*' | sort -r | head -n 1 | cut -c18-
-          echo "::set-output name=BRANCH_NAME::$(git branch --all --list 'remote/origin/release/20*' | sort -r | head -n 1 | cut -c18-)"
+          git branch --all --list 'remotes/origin/release/20*' | sort -r | head -n 1 | cut -c18-
+          echo "::set-output name=BRANCH_NAME::$(git branch --all --list 'remotes/origin/release/20*' | sort -r | head -n 1 | cut -c18-)"
 
       - name: Get all PR of old release branch
         uses: actions/github-script@v4
