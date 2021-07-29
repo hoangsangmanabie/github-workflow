@@ -16,7 +16,7 @@ jobs:
           NEXT_WEDNESDAY=$(date --date="next Wednesday" '+%Y%m%d')
           if [ $THIS_WEDNESDAY -eq  $NEXT_WEDNESDAY ]; then
             THIS_SUNDAY=$(date --date="this Sunday" '+%Y%m%d')
-            if [ $THIS_WEDNESDAY > $THIS_SUNDAY ]; then
+            if [ $THIS_WEDNESDAY -gt $THIS_SUNDAY ]; then
               THIS_WEDNESDAY=$(date --date="this Wednesday -7 days" '+%Y%m%d')
             fi
           fi
@@ -35,7 +35,7 @@ jobs:
               return result.data[0].number
             }
             return 0
-            
+
       - name: Get commit logs
         id: get_commit_logs
         run: |
