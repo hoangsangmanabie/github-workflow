@@ -22,7 +22,7 @@ jobs:
             branch="$1"
             match_count=$(echo ${branch} | grep -o -P "${regexp_release_branch}" | wc -l)
             if [[ ${match_count} != 1 ]]; then
-              >&2 echo "ERROR: release branch is not properly formatted (got \"${branch}\", expected \"release\/yyyymmdd\""; return 1
+              >&2 echo "ERROR: release branch is not properly formatted (got \"${branch}\", expected \"release/yyyymmdd\""; return 1
             fi
             return 0
           }
