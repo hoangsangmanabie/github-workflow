@@ -28,17 +28,10 @@ jobs:
           }
           $(check_format_release_branch "${BRANCH}")
 
-      - name: Create new release branch
-        uses: peterjgrainger/action-create-branch@v2.0.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          branch: ${{ github.event.inputs.release_branch_name }}
-
       - name: Get current release branch
         id: current_release_branch
         run: |
-          echo "::set-output name=BRANCH_NAME::$(git branch --all --list '*release/20*' | sort -r | head -n 1)"
+          echo "::set-output name=BRANCH_NAME::$(git branch --all --list 'release/20*' | sort -r | head -n 1)"
 
       - name: Get all PR of old release branch
         uses: actions/github-script@v4
@@ -63,3 +56,10 @@ jobs:
             const listPRNumber = ${{ steps.get_pull_request_numbers.outputs.result }}
             const { requestChange } = require(`${{github.workspace}}/.github/workflows/create_new_release.js`)
             return requestChange(github, listPRNumber)
+
+      - name: Create new release branch
+        uses: peterjgrainger/action-create-branch@v2.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          branch: ${{ github.event.inputs.release_branch_name }}
