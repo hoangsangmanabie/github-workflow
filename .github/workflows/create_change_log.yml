@@ -28,19 +28,36 @@ jobs:
       - name: Get commit logs
         id: get_commit_logs
         run: |
-          GIT_LOG_STRING=$(git log origin/develop origin/${{ steps.current_release_branch.outputs.BRANCH_NAME }} ^origin/develop)
-          GIT_LOG_STRING="${GIT_LOG_STRING//'%'/'%25'}"
-          GIT_LOG_STRING="${GIT_LOG_STRING//$'\n'/'%0A'}"
-          GIT_LOG_STRING="${GIT_LOG_STRING//$'\r'/'%0D'}"
-          echo "::set-output name=GIT_LOG::$GIT_LOG_STRING"
+          GIT_FULL_LOG_STRING=$(git log origin/develop origin/${{ steps.current_release_branch.outputs.BRANCH_NAME }} ^origin/develop)
+          GIT_FULL_LOG_STRING="${GIT_FULL_LOG_STRING//'%'/'%25'}"
+          GIT_FULL_LOG_STRING="${GIT_FULL_LOG_STRING//$'\n'/'%0A'}"
+          GIT_FULL_LOG_STRING="${GIT_FULL_LOG_STRING//$'\r'/'%0D'}"
+          echo "::set-output name=GIT_FULL_LOG::$GIT_FULL_LOG_STRING"
+
+          GIT_COMMIT_LOG_STRING=$(git log --format=%s origin/develop origin/${{ steps.current_release_branch.outputs.BRANCH_NAME }} ^origin/develop)
+          GIT_COMMIT_LOG_STRING="${GIT_COMMIT_LOG_STRING//'%'/'%25'}"
+          GIT_COMMIT_LOG_STRING="${GIT_COMMIT_LOG_STRING//$'\n'/'%0A'}"
+          GIT_COMMIT_LOG_STRING="${GIT_COMMIT_LOG_STRING//$'\r'/'%0D'}"
+          echo "::set-output name=GIT_COMMIT_LOG:$GIT_COMMIT_LOG_STRING"
+
       - name: Update current PR description
         uses: actions/github-script@v4
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            console.log(`${{ steps.get_commit_logs.outputs.GIT_LOG }}`)
             const url = `PATCH /repos/${{ github.repository }}/pulls/${{ steps.get_pull_request.outputs.result }}`
+            const changeLog = 
+            `
+              Features changes
+              ================================================
+              ${{ steps.get_commit_logs.outputs.GIT_COMMIT_LOG }}
+
+
+              All changes
+              ================================================
+              ${{ steps.get_commit_logs.outputs.GIT_FULL_LOG }}
+            `
             const result = await github.request(url, {
-              body: `${{ steps.get_commit_logs.outputs.GIT_LOG }}`
+              body: changeLog
             })
             console.log(result)
