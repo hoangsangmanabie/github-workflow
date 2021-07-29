@@ -49,7 +49,7 @@ jobs:
           GIT_COMMIT_LOG_STRING="${GIT_COMMIT_LOG_STRING//'%'/'%25'}"
           GIT_COMMIT_LOG_STRING="${GIT_COMMIT_LOG_STRING//$'\n'/'%0A'}"
           GIT_COMMIT_LOG_STRING="${GIT_COMMIT_LOG_STRING//$'\r'/'%0D'}"
-          echo "::set-output name=GIT_COMMIT_LOG:$GIT_COMMIT_LOG_STRING"
+          echo "::set-output name=GIT_COMMIT_LOG::$GIT_COMMIT_LOG_STRING"
 
       - name: Update current PR description
         uses: actions/github-script@v4
