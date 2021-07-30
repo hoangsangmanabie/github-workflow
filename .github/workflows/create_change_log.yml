@@ -44,6 +44,21 @@ jobs:
           GIT_COMMIT_LOG_STRING="${GIT_COMMIT_LOG_STRING//$'\r'/'%0D'}"
           echo "::set-output name=GIT_COMMIT_LOG::$GIT_COMMIT_LOG_STRING"
 
+      - name: Generate changelog
+        id: changelog
+        uses: metcalfc/changelog-generator@v1.0.0
+        with:
+          myToken: ${{ secrets.GITHUB_TOKEN }}
+          head-ref: ${{ steps.current_release_branch.outputs.BRANCH_NAME }} 
+          base-ref: 'develop'
+
+      - name: Show changelog for test
+        uses: actions/github-script@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            ${{ steps.changelog.outputs.changelog }}
+
       - name: Update current PR description
         uses: actions/github-script@v4
         with:
