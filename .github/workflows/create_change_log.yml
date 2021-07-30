@@ -32,13 +32,13 @@ jobs:
       - name: Get commit logs
         id: get_commit_logs
         run: |
-          GIT_FULL_LOG_STRING=$(git log --graph origin/develop origin/${{ steps.current_release_branch.outputs.BRANCH_NAME }} ^origin/develop)
+          GIT_FULL_LOG_STRING=$(git log  origin/develop origin/${{ steps.current_release_branch.outputs.BRANCH_NAME }} ^origin/develop)
           GIT_FULL_LOG_STRING="${GIT_FULL_LOG_STRING//'%'/'%25'}"
           GIT_FULL_LOG_STRING="${GIT_FULL_LOG_STRING//$'\n'/'%0A'}"
           GIT_FULL_LOG_STRING="${GIT_FULL_LOG_STRING//$'\r'/'%0D'}"
           echo "::set-output name=GIT_FULL_LOG::$GIT_FULL_LOG_STRING"
 
-          GIT_COMMIT_LOG_STRING=$(git log --graph --format=%s origin/develop origin/${{ steps.current_release_branch.outputs.BRANCH_NAME }} ^origin/develop)
+          GIT_COMMIT_LOG_STRING=$(git log --graph --first-parent origin/develop origin/${{ steps.current_release_branch.outputs.BRANCH_NAME }} ^origin/develop)
           GIT_COMMIT_LOG_STRING="${GIT_COMMIT_LOG_STRING//'%'/'%25'}"
           GIT_COMMIT_LOG_STRING="${GIT_COMMIT_LOG_STRING//$'\n'/'%0A'}"
           GIT_COMMIT_LOG_STRING="${GIT_COMMIT_LOG_STRING//$'\r'/'%0D'}"
