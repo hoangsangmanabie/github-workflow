@@ -29,22 +29,10 @@ jobs:
             }
             return 0
 
-      - name: Get all PR of release branch
-        uses: actions/github-script@v4
-        id: get_pull_request_release_branch
-        env:
-          REPO: ${{ github.repository }}
-          CURRENT_RELEASE_BRANCH: ${{ steps.current_release_branch.outputs.BRANCH_NAME }}
-        with:
-           github-token: ${{ secrets.GITHUB_TOKEN }}
-           script: |
-              const { getListPRNumber } = require(`${{github.workspace}}/.github/workflows/create_new_release.js`)
-              return getListPRNumber(github)
-
       - name: Get commit logs
         id: get_commit_logs
         run: |
-          GIT_FULL_LOG_STRING=$(git log origin/develop origin/${{ steps.current_release_branch.outputs.BRANCH_NAME }} ^origin/develop)
+          GIT_FULL_LOG_STRING=$(git log --graph origin/develop origin/${{ steps.current_release_branch.outputs.BRANCH_NAME }} ^origin/develop)
           GIT_FULL_LOG_STRING="${GIT_FULL_LOG_STRING//'%'/'%25'}"
           GIT_FULL_LOG_STRING="${GIT_FULL_LOG_STRING//$'\n'/'%0A'}"
           GIT_FULL_LOG_STRING="${GIT_FULL_LOG_STRING//$'\r'/'%0D'}"

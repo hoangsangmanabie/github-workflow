@@ -10,7 +10,6 @@ async function getListPRNumber(github) {
 
   let url = `/repos/${repo}/pulls?per_page=${limit}&page=${page}&base=${currentReleaseBranch}`
   let result = await github.request(url)
-  console.log(result)
 
   let dataSize = 0
 
