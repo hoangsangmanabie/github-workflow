@@ -12,15 +12,8 @@ jobs:
       - name: Get current release branch
         id: current_release_branch
         run: |
-          THIS_WEDNESDAY=$(date --date="this Wednesday" '+%Y%m%d')
-          NEXT_WEDNESDAY=$(date --date="next Wednesday" '+%Y%m%d')
-          if [ $THIS_WEDNESDAY -eq  $NEXT_WEDNESDAY ]; then
-            THIS_SUNDAY=$(date --date="this Sunday" '+%Y%m%d')
-            if [ $THIS_WEDNESDAY -gt $THIS_SUNDAY ]; then
-              THIS_WEDNESDAY=$(date --date="this Wednesday -7 days" '+%Y%m%d')
-            fi
-          fi
-          echo "::set-output name=BRANCH_NAME::release/$THIS_WEDNESDAY"
+          set -e
+          echo "::set-output name=BRANCH_NAME::$(git branch --all --list '*release/20*' | sort -r | head -n 1 | cut -c18-)"
 
       - name: Get pull request
         uses: actions/github-script@v4
