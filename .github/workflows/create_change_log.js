@@ -117,7 +117,7 @@ async function updateCurrentPRDescription(github, prNumber, descriptionObject) {
   let changeLog = 
   `
   Features changes
-  ================================================\n
+  -------------------------------------------------------\n
   `
 
   const n = descriptionObject.length
