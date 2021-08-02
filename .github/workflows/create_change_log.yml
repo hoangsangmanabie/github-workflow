@@ -35,7 +35,6 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            console.log(${{ github.repository }})
             const limit = 100
             let page = 1
             let listPRNumber = []
