@@ -39,7 +39,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const { getListMergedPR } = require(`${{github.workspace}}/.github/workflows/create_change_log.js`)
-            return getListMergedPR(github)
+            return await getListMergedPR(github)
 
       - name: Find all subtask related to each PR
         uses: actions/github-script@v4
@@ -50,7 +50,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const {getSubtaskForEachPR} = require(`${{github.workspace}}/.github/workflows/create_change_log.js`)
-            let result = getSubtaskForEachPR(github, ${{ steps.get_all_pr_has_base_is_current_release_branch.outputs.result }})
+            let result = await getSubtaskForEachPR(github, ${{ steps.get_all_pr_has_base_is_current_release_branch.outputs.result }})
             console.log(result)
 
       - name: Get commit logs
