@@ -37,7 +37,7 @@ async function getSubtaskForEachPR(github, listPR) {
     const n = listPR.length
     const regex = /\bLT-\d{1,6}\b/
 
-    let tickerNumberOfPR = ""
+    let ticketNumberOfPR = ""
     let arrMatch = []
     let ticketNumberOfCommit = ""
 
@@ -52,7 +52,8 @@ async function getSubtaskForEachPR(github, listPR) {
 
 
       if (arrMatch && arrMatch.length > 0) {
-        tickerNumberOfPR = arrMatch[0]
+        ticketNumberOfPR = arrMatch[0]
+        console.log("Ticket number of PR: " + ticketNumberOfPR)
       } else {
         listPRInfoWithSubtask.push(prInfoWithSubtask)
         continue
@@ -62,6 +63,7 @@ async function getSubtaskForEachPR(github, listPR) {
       let setSubTask = new Set()
       let m = listCommitOnPR.length
       for (let j=0;j<m;j++) {
+        console.log("Ticket number of PR: " + listCommitOnPR[j].message)
         arrMatch = listCommitOnPR[j].message.match(regex)
 
         if (arrMatch && arrMatch.length > 0) {
@@ -70,7 +72,7 @@ async function getSubtaskForEachPR(github, listPR) {
           continue
         }
 
-        if (ticketNumberOfCommit != tickerNumberOfPR) {
+        if (ticketNumberOfCommit != ticketNumberOfPR) {
           setSubTask.add(ticketNumberOfCommit)
         }
       }
@@ -78,7 +80,7 @@ async function getSubtaskForEachPR(github, listPR) {
       for (let ticket of setSubTask) {
         prInfoWithSubtask.subtask.push(ticket)
       }
-      
+
       listPRInfoWithSubtask.push(prInfoWithSubtask)
 
       ticketNumberOfCommit = ticketNumberOfPR = ""
