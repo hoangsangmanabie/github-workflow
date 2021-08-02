@@ -32,34 +32,26 @@ jobs:
       - name: Get all PR that has base is current release branch
         uses: actions/github-script@v4
         id: get_all_pr_has_base_is_current_release_branch
+        env:
+          REPO: ${{ github.repository }}
+          CURRENT_RELEASE_BRANCH: ${{ steps.current_release_branch.outputs.BRANCH_NAME }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const repo = `${{ github.repository }}`
-            const limit = 100
-            let page = 1
-            let listPRNumber = []
-            let url = `/search/issues?per_page=${limit}&page=${page}`
-            let result = await github.request(url, {
-              q: `repo:${repo} is:pr is:merged base:${{ steps.current_release_branch.outputs.BRANCH_NAME }}`
-            })
+            const { getListMergedPR } = require(`${{github.workspace}}/.github/workflows/create_change_log.js`)
+            return getListMergedPR(github)
+
+      - name: Find all subtask related to each PR
+        uses: actions/github-script@v4
+        id: find_all_subtask_for_each_pr
+        env:
+          REPO: ${{ github.repository }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const {getSubtaskForEachPR} = require(`${{github.workspace}}/.github/workflows/create_change_log.js`)
+            let result = getSubtaskForEachPR(github, ${{ steps.get_all_pr_has_base_is_current_release_branch.outputs.result }})
             console.log(result)
-            let dataSize = 0
-            while (result.data.items.length != 0) {
-              dataSize = result.data.items.length
-              for (let i=0;i<dataSize;i++) {
-                listPRNumber.push(result.data.items[i].number)
-              }
-              if (dataSize < limit) {
-                break
-              }
-              page++
-              url = `/search/issues?per_page=${limit}&page=${page}`
-              result = await github.request(url, {
-                q: `repo:${repo} is:pr is:merged base:${{ steps.current_release_branch.outputs.BRANCH_NAME }}`
-              })
-              console.log(result)
-            }
 
       - name: Get commit logs
         id: get_commit_logs

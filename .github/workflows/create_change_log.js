@@ -1,34 +1,117 @@
 const repo = process.env.REPO;
 const currentReleaseBranch = process.env.CURRENT_RELEASE_BRANCH
-const newReleaseBranch = process.env.NEW_RELEASE_BRANCH
 
-async function getListPRClosedNumber(github) {
-  let listPRNumber = []
-
-  let limit = 100
+async function getListMergedPR(github) {
+  const limit = 100
   let page = 1
-
-  let url = `/repos/${repo}/pulls?per_page=${limit}&page=${page}&base=${currentReleaseBranch}&state=closed`
-  let result = await github.request(url)
-
+  let listPRInfo = []
+  let url = `/search/issues?per_page=${limit}&page=${page}`
+  let result = await github.request(url, {
+    q: `repo:${repo} is:pr is:merged base:${currentReleaseBranch}`
+  })
+  console.log(result)
   let dataSize = 0
-
-  while (result.data.length != 0) {
-    dataSize = result.data.length
-
-    for (let i = 0; i < dataSize; i++) {
-      listPRNumber.push(result.data[i].number)
+  while (result.data.items.length != 0) {
+    dataSize = result.data.items.length
+    for (let i=0;i<dataSize;i++) {
+      listPRInfo.push({
+        number: result.data.items[i].number,
+        title: result.data.items[i].title
+      })
     }
-
     if (dataSize < limit) {
       break
     }
-
     page++
+    url = `/search/issues?per_page=${limit}&page=${page}`
+    result = await github.request(url, {
+      q: `repo:${repo} is:pr is:merged base:${currentReleaseBranch}`
+    })
+  }
+  return listPRInfo 
+}
 
-    url = `/repos/${repo}/pulls?per_page=${limit}&page=${page}&base=${currentReleaseBranch}`
+async function getSubtaskForEachPR(github, listPR) {
+    let listPRInfoWithSubtask = []
+
+    const n = listPR.length
+    const regex = /\bLT-\d{1,6}\b/
+
+    let tickerNumberOfPR = ""
+    let arrMatch = []
+    let ticketNumberOfCommit = ""
+
+    for (let i=0;i<n;i++) {
+      let prInfoWithSubtask = {
+        title: listPR[i].title,
+        number: listPR[i].number,
+        subtask: []
+      }
+
+      arrMatch = listPR[i].title.match(regex)
+
+
+      if (arrMatch && arrMatch.length > 0) {
+        tickerNumberOfPR = arrMatch[0]
+      } else {
+        listPRInfoWithSubtask.push(prInfoWithSubtask)
+        continue
+      }
+
+      let listCommitOnPR = await getCommitOnPR(github, listPR[i].number)
+      let setSubTask = new Set()
+      let m = listCommitOnPR.length
+      for (let j=0;j<m;j++) {
+        arrMatch = listCommitOnPR[j].message.match(regex)
+
+        if (arrMatch && arrMatch.length > 0) {
+          ticketNumberOfCommit = arrMatch[0]
+        } else {
+          continue
+        }
+
+        if (ticketNumberOfCommit != tickerNumberOfPR) {
+          setSubTask.add(ticketNumberOfCommit)
+        }
+      }
+
+      for (let ticket of setSubTask) {
+        prInfoWithSubtask.subtask.push(ticket)
+      }
+      
+      listPRInfoWithSubtask.push(prInfoWithSubtask)
+
+      ticketNumberOfCommit = ticketNumberOfPR = ""
+    }
+    return listPRInfoWithSubtask
+}
+
+async function getCommitOnPR(github, prNumber) {
+  let listCommitInfo = []
+  const limit = 100
+  let page = 1
+  let dataSize = 0
+  let url = `/repos/${repo}/pulls/${prNumber}/commits?per_page=${limit}&page=${page}`
+  let result = await github.request(url)
+  while (result.data.length != 0) {
+    dataSize = result.data.length
+    for (let i=0;i<dataSize;i++) {
+      listCommitInfo.push({
+        sha: result.data[i].sha,
+        message: result.data[i].commit.message
+      })
+    }
+    if (dataSize < limit) {
+      break
+    }
+    page++
+    url = `/repos/${repo}/pulls/${prNumber}/commits?per_page=${limit}&page=${page}`
     result = await github.request(url)
   }
+  return listCommitInfo
+}
 
-  return listPRNumber
+module.exports = {
+  getListMergedPR,
+  getSubtaskForEachPR
 }
