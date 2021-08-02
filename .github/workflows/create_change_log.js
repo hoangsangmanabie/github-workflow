@@ -113,7 +113,35 @@ async function getCommitOnPR(github, prNumber) {
   return listCommitInfo
 }
 
+async function updateCurrentPRDescription(github, prNumber, descriptionObject) {
+  let changeLog = 
+  `
+  Features changes
+  ================================================\n
+  `
+
+  const n = descriptionObject.length
+  for (let i=0;i<n;i++) {
+    changeLog += `${descriptionObject[i].title} (#${descriptionObject[i].number})\n`
+    if (descriptionObject[i].subtask.length > 0) {
+      let m = descriptionObject[i].subtask.length
+      changeLog += `\tSub tasks: \n`
+      for (let j=0;j<m;j++) {
+        changeLog+=`\t\t${descriptionObject[i].subtask[i]}\n`
+      }
+    }
+  }
+
+  const url = `PATCH /repos/${repo}/pulls/${prNumber}`
+  const result = await github.request(url, {
+    body: changeLog
+  })
+  console.log(result)
+
+}
+
 module.exports = {
   getListMergedPR,
-  getSubtaskForEachPR
+  getSubtaskForEachPR,
+  updateCurrentPRDescription
 }

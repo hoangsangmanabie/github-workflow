@@ -52,41 +52,12 @@ jobs:
             const {getSubtaskForEachPR} = require(`${{github.workspace}}/.github/workflows/create_change_log.js`)
             let result = await getSubtaskForEachPR(github, ${{ steps.get_all_pr_has_base_is_current_release_branch.outputs.result }})
             console.log(result)
-
-      - name: Get commit logs
-        id: get_commit_logs
-        run: |
-          GIT_FULL_LOG_STRING=$(git log origin/develop origin/${{ steps.current_release_branch.outputs.BRANCH_NAME }} ^origin/develop)
-          GIT_FULL_LOG_STRING="${GIT_FULL_LOG_STRING//'%'/'%25'}"
-          GIT_FULL_LOG_STRING="${GIT_FULL_LOG_STRING//$'\n'/'%0A'}"
-          GIT_FULL_LOG_STRING="${GIT_FULL_LOG_STRING//$'\r'/'%0D'}"
-          echo "::set-output name=GIT_FULL_LOG::$GIT_FULL_LOG_STRING"
-
-          GIT_COMMIT_LOG_STRING=$(git log --format=%s --first-parent origin/develop origin/${{ steps.current_release_branch.outputs.BRANCH_NAME }} ^origin/develop)
-          GIT_COMMIT_LOG_STRING="${GIT_COMMIT_LOG_STRING//'%'/'%25'}"
-          GIT_COMMIT_LOG_STRING="${GIT_COMMIT_LOG_STRING//$'\n'/'%0A'}"
-          GIT_COMMIT_LOG_STRING="${GIT_COMMIT_LOG_STRING//$'\r'/'%0D'}"
-          echo "::set-output name=GIT_COMMIT_LOG::$GIT_COMMIT_LOG_STRING"
+            return result
 
       - name: Update current PR description
         uses: actions/github-script@v4
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            console.log(`${{ steps.get_commit_logs.outputs.GIT_COMMIT_LOG }}`)
-            const url = `PATCH /repos/${{ github.repository }}/pulls/${{ steps.get_release_pull_request.outputs.result }}`
-            const changeLog = 
-            `
-            Features changes
-            ================================================
-            ${{ steps.get_commit_logs.outputs.GIT_COMMIT_LOG }}
-
-
-            All changes
-            ================================================
-            ${{ steps.get_commit_logs.outputs.GIT_FULL_LOG }}
-            `
-            const result = await github.request(url, {
-              body: changeLog
-            })
-            console.log(result)
+            const {updateCurrentPRDescription} = require(`${{github.workspace}}/.github/workflows/create_change_log.js`)
+            await updateCurrentPRDescription(github, ${{ steps.get_release_pull_request.outputs.result }}, ${{ steps.find_all_subtask_for_each_pr.outputs.result }})
