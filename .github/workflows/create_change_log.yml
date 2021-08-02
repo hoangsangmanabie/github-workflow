@@ -35,6 +35,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            console.log(`${{ github.repository }}`)
             const limit = 100
             let page = 1
             let listPRNumber = []
@@ -42,10 +43,10 @@ jobs:
             let result = await github.request(url)
             console.log(result)
             let dataSize = 0
-            while (result.data.length != 0) {
-              dataSize = result.data.length
+            while (result.items.length != 0) {
+              dataSize = result.items.length
               for (let i=0;i<dataSize;i++) {
-                listPRNumber.push(result.data[i].number)
+                listPRNumber.push(result.items[i].number)
               }
               if (dataSize < limit) {
                 break
