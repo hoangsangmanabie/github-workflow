@@ -39,21 +39,24 @@ jobs:
             const limit = 100
             let page = 1
             let listPRNumber = []
-            let url = `/search/issues?q=repo:${repo}+is:pr+is:merged+base:${{ steps.current_release_branch.outputs.BRANCH_NAME }}&per_page=${limit}&page=${page}`
-            let result = await github.request(url)
+            let url = `/search/issues`
+            let result = await github.request(url, {
+              q: `repo:${repo}+is:pr+is:merged+base:${{ steps.current_release_branch.outputs.BRANCH_NAME }}&per_page=${limit}&page=${page}`
+            })
             console.log(result)
             let dataSize = 0
-            while (result.items.length != 0) {
-              dataSize = result.items.length
+            while (result.data.items.length != 0) {
+              dataSize = result.data.items.length
               for (let i=0;i<dataSize;i++) {
-                listPRNumber.push(result.items[i].number)
+                listPRNumber.push(result.data.items[i].number)
               }
               if (dataSize < limit) {
                 break
               }
               page++
-              url = `/search/issues?q=repo:${repo}+is:pr+is:merged+base:${{ steps.current_release_branch.outputs.BRANCH_NAME }}&per_page=${limit}&page=${page}`
-              result = await github.request(url)
+              result = await github.request(url, {
+                q: `repo:${repo}+is:pr+is:merged+base:${{ steps.current_release_branch.outputs.BRANCH_NAME }}&per_page=${limit}&page=${page}`
+              })
               console.log(result)
             }
 
