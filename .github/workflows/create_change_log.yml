@@ -56,6 +56,8 @@ jobs:
 
       - name: Update current PR description
         uses: actions/github-script@v4
+        env:
+          REPO: ${{ github.repository }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |

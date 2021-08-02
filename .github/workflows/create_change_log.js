@@ -127,7 +127,7 @@ async function updateCurrentPRDescription(github, prNumber, descriptionObject) {
       let m = descriptionObject[i].subtask.length
       changeLog += `\tSub tasks: \n`
       for (let j=0;j<m;j++) {
-        changeLog+=`\t\t${descriptionObject[i].subtask[i]}\n`
+        changeLog+=`\t\t${descriptionObject[i].subtask[j]}\n`
       }
     }
   }
