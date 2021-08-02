@@ -35,10 +35,11 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            console.log(${{ github.repository }})
             const limit = 100
             let page = 1
             let listPRNumber = []
-            const url = `/search/issues?q=repo:${{ github.repository }}+is:pr+is:merged+base:${{ steps.current_release_branch.outputs.BRANCH_NAME }}&per_page=${limit}&page=${page}`
+            let url = `/search/issues?q=repo:${{ github.repository }}+is:pr+is:merged+base:${{ steps.current_release_branch.outputs.BRANCH_NAME }}&per_page=${limit}&page=${page}`
             let result = await github.request(url)
             console.log(result)
             let dataSize = 0
