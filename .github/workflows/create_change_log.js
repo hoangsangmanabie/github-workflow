@@ -15,29 +15,54 @@ async function getListMergedPR({ github, context }, currentReleaseBranch) {
   const limit = 1
   let page = 1
   let listPRInfo = []
+  
   let url = `/search/issues?per_page=${limit}&page=${page}`
   let result = await github.request(url, {
     q: `repo:${context.repo.owner}/${context.repo.repo} is:pr is:merged base:${currentReleaseBranch}`
   })
-  let dataSize = 0
-  while (result.data.items.length != 0) {
-    dataSize = result.data.items.length
-    for (let i = 0; i < dataSize; i++) {
-      listPRInfo.push({
-        number: result.data.items[i].number,
-        title: result.data.items[i].title
-      })
-    }
-    if (dataSize < limit) {
-      break
-    }
+
+  let dataSize = result.data.items.length
+
+  for (let i = 0; i < dataSize; i++) {
+    listPRInfo.push({
+      number: result.data.items[i].number,
+      title: result.data.items[i].title
+    })
+  }
+
+  let total = result.data.total_count
+  let times = 0
+
+  if (total % limit == 0) {
+    times = total / limit
+  } else {
+    times = total / limit + 1
+  }
+
+  let requests = []
+  while (times > 0) {
     page++
     url = `/search/issues?per_page=${limit}&page=${page}`
-    result = await github.request(url, {
+    requests.push(github.request(url, {
       q: `repo:${context.repo.owner}/${context.repo.repo} is:pr is:merged base:${currentReleaseBranch}`
-    })
-    console.log(result)
+    }))
+    times--
   }
+
+  let responses = await Promise.all(requests)
+  let n = responses.length
+
+  for (let i = 0; i < n; i++) {
+    let data = responses[i].data
+    let m = data.items.length
+    for (let j = 0; j < m; j++) {
+      listPRInfo.push({
+        number: data.items[j].number,
+        title: data.items[j].title
+      })
+    }
+  }
+
   return listPRInfo
 }
 
@@ -126,14 +151,13 @@ async function getCommitOnPR({ github, context }, prNumber) {
       repo: context.repo.repo,
       pull_number: prNumber
     })
-    console.log(result)
   }
   return listCommitInfo
 }
 
 async function updateCurrentPRDescription({ github, context }, prNumber, descriptionObject) {
   let changeLog =
-  `
+    `
   All changes
   -------------------------------------------------------\n
   `
