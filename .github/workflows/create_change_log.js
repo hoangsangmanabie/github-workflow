@@ -1,8 +1,8 @@
-async function getReleasePR({github, context}, currentReleaseBranch) {
+async function getReleasePR({ github, context }, currentReleaseBranch) {
   const url = `GET /repos/{owner}/{repo}/pulls?base=develop&head=${currentReleaseBranch}`
   const result = await github.request(url, {
     owner: context.repo.owner,
-    repo:   context.repo.repo
+    repo: context.repo.repo
   })
   if (result.data.length != 0) {
     return result.data[0].number
@@ -11,7 +11,7 @@ async function getReleasePR({github, context}, currentReleaseBranch) {
   return 0
 }
 
-async function getListMergedPR({github, context}, currentReleaseBranch) {
+async function getListMergedPR({ github, context }, currentReleaseBranch) {
   const limit = 100
   let page = 1
   let listPRInfo = []
@@ -22,7 +22,7 @@ async function getListMergedPR({github, context}, currentReleaseBranch) {
   let dataSize = 0
   while (result.data.items.length != 0) {
     dataSize = result.data.items.length
-    for (let i=0;i<dataSize;i++) {
+    for (let i = 0; i < dataSize; i++) {
       listPRInfo.push({
         number: result.data.items[i].number,
         title: result.data.items[i].title
@@ -37,66 +37,66 @@ async function getListMergedPR({github, context}, currentReleaseBranch) {
       q: `repo:${context.repo.owner}/${context.repo.repo} is:pr is:merged base:${currentReleaseBranch}`
     })
   }
-  return listPRInfo 
+  return listPRInfo
 }
 
-async function getSubtaskForEachPR({github,context}, listPR) {
-    let listPRInfoWithSubtask = []
+async function getSubtaskForEachPR({ github, context }, listPR) {
+  let listPRInfoWithSubtask = []
 
-    const n = listPR.length
-    const regex = /\bLT-\d{1,6}\b/
+  const n = listPR.length
+  const regex = /\bLT-\d{1,6}\b/
 
-    let ticketNumberOfPR = ""
-    let arrMatch = []
-    let ticketNumberOfCommit = ""
+  let ticketNumberOfPR = ""
+  let arrMatch = []
+  let ticketNumberOfCommit = ""
 
-    for (let i=0;i<n;i++) {
-      let prInfoWithSubtask = {
-        title: listPR[i].title,
-        number: listPR[i].number,
-        subtask: []
-      }
+  for (let i = 0; i < n; i++) {
+    let prInfoWithSubtask = {
+      title: listPR[i].title,
+      number: listPR[i].number,
+      subtask: []
+    }
 
-      arrMatch = listPR[i].title.match(regex)
+    arrMatch = listPR[i].title.match(regex)
 
+
+    if (arrMatch && arrMatch.length > 0) {
+      ticketNumberOfPR = arrMatch[0]
+    } else {
+      listPRInfoWithSubtask.push(prInfoWithSubtask)
+      continue
+    }
+
+    let listCommitOnPR = await getCommitOnPR({ github, context }, listPR[i].number)
+    let setSubTask = new Set()
+    let m = listCommitOnPR.length
+
+    for (let j = 0; j < m; j++) {
+      arrMatch = listCommitOnPR[j].message.match(regex)
 
       if (arrMatch && arrMatch.length > 0) {
-        ticketNumberOfPR = arrMatch[0]
+        ticketNumberOfCommit = arrMatch[0]
       } else {
-        listPRInfoWithSubtask.push(prInfoWithSubtask)
         continue
       }
 
-      let listCommitOnPR = await getCommitOnPR({github,context}, listPR[i].number)
-      let setSubTask = new Set()
-      let m = listCommitOnPR.length
-
-      for (let j=0;j<m;j++) {
-        arrMatch = listCommitOnPR[j].message.match(regex)
-
-        if (arrMatch && arrMatch.length > 0) {
-          ticketNumberOfCommit = arrMatch[0]
-        } else {
-          continue
-        }
-
-        if (ticketNumberOfCommit != ticketNumberOfPR) {
-          setSubTask.add(ticketNumberOfCommit)
-        }
+      if (ticketNumberOfCommit != ticketNumberOfPR) {
+        setSubTask.add(ticketNumberOfCommit)
       }
-
-      for (let ticket of setSubTask) {
-        prInfoWithSubtask.subtask.push(ticket)
-      }
-
-      listPRInfoWithSubtask.push(prInfoWithSubtask)
-
-      ticketNumberOfCommit = ticketNumberOfPR = ""
     }
-    return listPRInfoWithSubtask
+
+    for (let ticket of setSubTask) {
+      prInfoWithSubtask.subtask.push(ticket)
+    }
+
+    listPRInfoWithSubtask.push(prInfoWithSubtask)
+
+    ticketNumberOfCommit = ticketNumberOfPR = ""
+  }
+  return listPRInfoWithSubtask
 }
 
-async function getCommitOnPR({github,context}, prNumber) {
+async function getCommitOnPR({ github, context }, prNumber) {
   let listCommitInfo = []
   const limit = 100
   let page = 1
@@ -109,7 +109,7 @@ async function getCommitOnPR({github,context}, prNumber) {
   })
   while (result.data.length != 0) {
     dataSize = result.data.length
-    for (let i=0;i<dataSize;i++) {
+    for (let i = 0; i < dataSize; i++) {
       listCommitInfo.push({
         sha: result.data[i].sha,
         message: result.data[i].commit.message
@@ -129,25 +129,25 @@ async function getCommitOnPR({github,context}, prNumber) {
   return listCommitInfo
 }
 
-async function updateCurrentPRDescription({github,context}, prNumber, descriptionObject) {
-  let changeLog = 
+async function updateCurrentPRDescription({ github, context }, prNumber, descriptionObject) {
+  let changeLog =
   `
-  Features changes
+  All changes
   -------------------------------------------------------\n
   `
 
   const n = descriptionObject.length
 
-  for (let i=0;i<n;i++) {
+  for (let i = 0; i < n; i++) {
     if (descriptionObject[i].subtask.length > 0) {
-      changeLog += `<p>${i+1}. ${descriptionObject[i].title} (#${descriptionObject[i].number})</p><ul>`
+      changeLog += `<p>${i + 1}. ${descriptionObject[i].title} (#${descriptionObject[i].number})</p><ul>`
       let m = descriptionObject[i].subtask.length
-      for (let j=0;j<m;j++) {
-        changeLog+=`<li>Subtask ${descriptionObject[i].subtask[j]}</li>`
+      for (let j = 0; j < m; j++) {
+        changeLog += `<li>Subtask ${descriptionObject[i].subtask[j]}</li>`
       }
       changeLog += "</ul>"
     } else {
-      changeLog += `<p>${i+1}. ${descriptionObject[i].title} (#${descriptionObject[i].number})</p>`    
+      changeLog += `<p>${i + 1}. ${descriptionObject[i].title} (#${descriptionObject[i].number})</p>`
     }
   }
 
