@@ -12,7 +12,7 @@ async function getReleasePR({ github, context }, currentReleaseBranch) {
 }
 
 async function getListMergedPR({ github, context }, currentReleaseBranch) {
-  const limit = 100
+  const limit = 1
   let page = 1
   let listPRInfo = []
   let url = `/search/issues?per_page=${limit}&page=${page}`
@@ -98,7 +98,7 @@ async function getSubtaskForEachPR({ github, context }, listPR) {
 
 async function getCommitOnPR({ github, context }, prNumber) {
   let listCommitInfo = []
-  const limit = 100
+  const limit = 1
   let page = 1
   let dataSize = 0
   let url = `/repos/{owner}/{repo}/pulls/{pull_number}/commits?per_page=${limit}&page=${page}`
