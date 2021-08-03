@@ -1,8 +1,8 @@
 async function getReleasePR({github, context}, currentReleaseBranch) {
   const url = `GET /repos/{owner}/{repo}/pulls?base=develop&head=${currentReleaseBranch}`
   const result = await github.request(url, {
-    owner: context.owner,
-    repo: context.repo
+    owner: context.repo.owner,
+    repo:   context.repo.repo
   })
   if (result.data.length != 0) {
     return result.data[0].number
@@ -17,7 +17,7 @@ async function getListMergedPR({github, context}, currentReleaseBranch) {
   let listPRInfo = []
   let url = `/search/issues?per_page=${limit}&page=${page}`
   let result = await github.request(url, {
-    q: `repo:${context.owner}/${context.repo} is:pr is:merged base:${currentReleaseBranch}`
+    q: `repo:${context.repo.owner}/${context.repo.repo} is:pr is:merged base:${currentReleaseBranch}`
   })
   let dataSize = 0
   while (result.data.items.length != 0) {
@@ -34,7 +34,7 @@ async function getListMergedPR({github, context}, currentReleaseBranch) {
     page++
     url = `/search/issues?per_page=${limit}&page=${page}`
     result = await github.request(url, {
-      q: `repo:${context.owner}/${context.repo} is:pr is:merged base:${currentReleaseBranch}`
+      q: `repo:${context.repo.owner}/${context.repo.repo} is:pr is:merged base:${currentReleaseBranch}`
     })
   }
   return listPRInfo 
@@ -103,8 +103,8 @@ async function getCommitOnPR({github,context}, prNumber) {
   let dataSize = 0
   let url = `/repos/{owner}/{repo}/pulls/{pull_number}/commits?per_page=${limit}&page=${page}`
   let result = await github.request(url, {
-    owner: context.owner,
-    repo: context.repo,
+    owner: context.repo.owner,
+    repo: context.repo.repo,
     pull_number: prNumber
   })
   while (result.data.length != 0) {
@@ -121,8 +121,8 @@ async function getCommitOnPR({github,context}, prNumber) {
     page++
     url = `/repos/{owner}/{repo}/pulls/{pull_number}/commits?per_page=${limit}&page=${page}`
     result = await github.request(url, {
-      owner: context.owner,
-      repo: context.repo,
+      owner: context.repo.owner,
+      repo: context.repo.repo,
       pull_number: prNumber
     })
   }
@@ -156,8 +156,8 @@ async function updateCurrentPRDescription({github,context}, prNumber, descriptio
   const url = `PATCH /repos/{owner}/{repo}/pulls/{pull_number}`
   await github.request(url, {
     body: changeLog,
-    owner: context.owner,
-    repo: context.repo,
+    owner: context.repo.owner,
+    repo: context.repo.repo,
     pull_number: prNumber
   })
 }
