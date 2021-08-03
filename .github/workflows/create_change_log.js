@@ -36,6 +36,7 @@ async function getListMergedPR({ github, context }, currentReleaseBranch) {
     result = await github.request(url, {
       q: `repo:${context.repo.owner}/${context.repo.repo} is:pr is:merged base:${currentReleaseBranch}`
     })
+    console.log(result)
   }
   return listPRInfo
 }
