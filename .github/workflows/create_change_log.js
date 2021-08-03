@@ -149,7 +149,7 @@ async function getCommitOnPR({ github, context }, prNumber) {
     }
 
     page++
-    
+
     url = `/repos/{owner}/{repo}/pulls/{pull_number}/commits?per_page=${limit}&page=${page}`
     result = await github.request(url, {
       owner: context.repo.owner,
@@ -162,7 +162,7 @@ async function getCommitOnPR({ github, context }, prNumber) {
 
 async function updateCurrentPRDescription({ github, context }, prNumber, descriptionObject) {
   let changeLog =
-    `
+  `
   All changes
   -------------------------------------------------------\n
   `
