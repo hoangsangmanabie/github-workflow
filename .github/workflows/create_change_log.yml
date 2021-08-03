@@ -22,7 +22,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const {getReleasePR} = require(`${{github.workspace}}/.github/workflows/create_change_log.js`)
-            return await getReleasePR({github,context}, ${{ steps.current_release_branch.outputs.BRANCH_NAME }})
+            return await getReleasePR({github,context}, `${{ steps.current_release_branch.outputs.BRANCH_NAME }}`)
           
       - name: Get all PR that has base is current release branch
         uses: actions/github-script@v4
@@ -31,7 +31,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const { getListMergedPR } = require(`${{github.workspace}}/.github/workflows/create_change_log.js`)
-            return await getListMergedPR({github,context}, ${{ steps.current_release_branch.outputs.BRANCH_NAME }})
+            return await getListMergedPR({github,context}, `${{ steps.current_release_branch.outputs.BRANCH_NAME }}`)
 
       - name: Find all subtask related to each PR
         uses: actions/github-script@v4
