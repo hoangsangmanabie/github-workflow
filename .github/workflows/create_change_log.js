@@ -1,15 +1,24 @@
-const repo = process.env.REPO;
-const currentReleaseBranch = process.env.CURRENT_RELEASE_BRANCH
+async function getReleasePR({github, context}, currentReleaseBranch) {
+  const url = `GET /repos/{owner}/{repo}/pulls?base=develop&head=${currentReleaseBranch}`
+  const result = await github.request(url, {
+    owner: context.owner,
+    repo: context.repo
+  })
+  if (result.data.length != 0) {
+    return result.data[0].number
+  }
+  console.error(`Not found any open PR that has base is "develop" and head is "${currentReleaseBranch}"`)
+  return 0
+}
 
-async function getListMergedPR(github) {
+async function getListMergedPR({github, context}, currentReleaseBranch) {
   const limit = 100
   let page = 1
   let listPRInfo = []
   let url = `/search/issues?per_page=${limit}&page=${page}`
   let result = await github.request(url, {
-    q: `repo:${repo} is:pr is:merged base:${currentReleaseBranch}`
+    q: `repo:${context.owner}/${context.repo} is:pr is:merged base:${currentReleaseBranch}`
   })
-  console.log(result)
   let dataSize = 0
   while (result.data.items.length != 0) {
     dataSize = result.data.items.length
@@ -25,13 +34,13 @@ async function getListMergedPR(github) {
     page++
     url = `/search/issues?per_page=${limit}&page=${page}`
     result = await github.request(url, {
-      q: `repo:${repo} is:pr is:merged base:${currentReleaseBranch}`
+      q: `repo:${context.owner}/${context.repo} is:pr is:merged base:${currentReleaseBranch}`
     })
   }
   return listPRInfo 
 }
 
-async function getSubtaskForEachPR(github, listPR) {
+async function getSubtaskForEachPR({github,context}, listPR) {
     let listPRInfoWithSubtask = []
 
     const n = listPR.length
@@ -53,17 +62,16 @@ async function getSubtaskForEachPR(github, listPR) {
 
       if (arrMatch && arrMatch.length > 0) {
         ticketNumberOfPR = arrMatch[0]
-        console.log("Ticket number of PR: " + ticketNumberOfPR)
       } else {
         listPRInfoWithSubtask.push(prInfoWithSubtask)
         continue
       }
 
-      let listCommitOnPR = await getCommitOnPR(github, listPR[i].number)
+      let listCommitOnPR = await getCommitOnPR({github,context}, listPR[i].number)
       let setSubTask = new Set()
       let m = listCommitOnPR.length
+
       for (let j=0;j<m;j++) {
-        console.log("Ticket number of PR: " + listCommitOnPR[j].message)
         arrMatch = listCommitOnPR[j].message.match(regex)
 
         if (arrMatch && arrMatch.length > 0) {
@@ -88,13 +96,17 @@ async function getSubtaskForEachPR(github, listPR) {
     return listPRInfoWithSubtask
 }
 
-async function getCommitOnPR(github, prNumber) {
+async function getCommitOnPR({github,context}, prNumber) {
   let listCommitInfo = []
   const limit = 100
   let page = 1
   let dataSize = 0
-  let url = `/repos/${repo}/pulls/${prNumber}/commits?per_page=${limit}&page=${page}`
-  let result = await github.request(url)
+  let url = `/repos/{owner}/{repo}/pulls/{pull_number}/commits?per_page=${limit}&page=${page}`
+  let result = await github.request(url, {
+    owner: context.owner,
+    repo: context.repo,
+    pull_number: prNumber
+  })
   while (result.data.length != 0) {
     dataSize = result.data.length
     for (let i=0;i<dataSize;i++) {
@@ -107,13 +119,17 @@ async function getCommitOnPR(github, prNumber) {
       break
     }
     page++
-    url = `/repos/${repo}/pulls/${prNumber}/commits?per_page=${limit}&page=${page}`
-    result = await github.request(url)
+    url = `/repos/{owner}/{repo}/pulls/{pull_number}/commits?per_page=${limit}&page=${page}`
+    result = await github.request(url, {
+      owner: context.owner,
+      repo: context.repo,
+      pull_number: prNumber
+    })
   }
   return listCommitInfo
 }
 
-async function updateCurrentPRDescription(github, prNumber, descriptionObject) {
+async function updateCurrentPRDescription({github,context}, prNumber, descriptionObject) {
   let changeLog = 
   `
   Features changes
@@ -121,6 +137,7 @@ async function updateCurrentPRDescription(github, prNumber, descriptionObject) {
   `
 
   const n = descriptionObject.length
+
   for (let i=0;i<n;i++) {
     if (descriptionObject[i].subtask.length > 0) {
       changeLog += `<p>${i+1}. ${descriptionObject[i].title} (#${descriptionObject[i].number})</p><ul>`
@@ -136,15 +153,17 @@ async function updateCurrentPRDescription(github, prNumber, descriptionObject) {
 
   changeLog += "</ul>"
 
-  const url = `PATCH /repos/${repo}/pulls/${prNumber}`
-  const result = await github.request(url, {
-    body: changeLog
+  const url = `PATCH /repos/{owner}/{repo}/pulls/{pull_number}`
+  await github.request(url, {
+    body: changeLog,
+    owner: context.owner,
+    repo: context.repo,
+    pull_number: prNumber
   })
-  console.log(result)
-
 }
 
 module.exports = {
+  getReleasePR,
   getListMergedPR,
   getSubtaskForEachPR,
   updateCurrentPRDescription
