@@ -125,6 +125,7 @@ async function getCommitOnPR({ github, context }, prNumber) {
       repo: context.repo.repo,
       pull_number: prNumber
     })
+    console.log(result)
   }
   return listCommitInfo
 }
