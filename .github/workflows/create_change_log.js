@@ -14,7 +14,6 @@ async function getReleasePR({ github, context }, currentReleaseBranch) {
 async function getListMergedPR({ github, context }, currentReleaseBranch) {
   const limit = 100
   let page = 1
-  let listPRInfo = []
 
   let url = `/search/issues?per_page=${limit}&page=${page}`
   let result = await github.request(url, {
