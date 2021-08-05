@@ -20,8 +20,6 @@ async function getListMergedPR({ github, context }, currentReleaseBranch) {
     q: `repo:${context.repo.owner}/${context.repo.repo} is:pr is:merged base:${currentReleaseBranch}`
   })
 
-  let dataSize = result.data.items.length
-
   const listPRInfo = result.data.items.map(item => {
     return {
       number: item.number,
