@@ -4,7 +4,7 @@ async function getReleasePR({ github, context }, currentReleaseBranch) {
     owner: context.repo.owner,
     repo: context.repo.repo
   })
-  if (result.data.length != 0) {
+  if (result.data.length !== 0) {
     return result.data[0].number
   }
   console.error(`Not found any open PR that has base is "develop" and head is "${currentReleaseBranch}"`)
@@ -23,12 +23,12 @@ async function getListMergedPR({ github, context }, currentReleaseBranch) {
 
   let dataSize = result.data.items.length
 
-  for (let i = 0; i < dataSize; i++) {
-    listPRInfo.push({
-      number: result.data.items[i].number,
-      title: result.data.items[i].title
-    })
-  }
+  const listPRInfo = result.data.items.map(item => {
+    return {
+      number: item.number,
+      title: item.title
+    }
+  })
 
   let total = result.data.total_count
   let times = 0
@@ -135,7 +135,7 @@ async function getCommitOnPR({ github, context }, prNumber) {
     pull_number: prNumber
   })
 
-  while (result.data.length != 0) {
+  while (result.data.length !== 0) {
     dataSize = result.data.length
     for (let i = 0; i < dataSize; i++) {
       listCommitInfo.push({
@@ -162,10 +162,10 @@ async function getCommitOnPR({ github, context }, prNumber) {
 
 async function updateCurrentPRDescription({ github, context }, prNumber, descriptionObject) {
   let changeLog =
-  `
-  All changes
-  -------------------------------------------------------\n
-  `
+    `
+All changes
+-------------------------------------------------------\n
+`
 
   const n = descriptionObject.length
 
